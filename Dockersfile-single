@@ -1,0 +1,9 @@
+#This is new dockerfile we need to build for our course
+FROM alpine:latest
+RUN apk add --no-cache gcc musl-dev
+COPY hello.c .
+RUN gcc -o hello hello.c
+CMD ["./hello"]
+#This is a single stage docker file
+#Now the following command to build it 
+#docker build -f Dockerfile-single -t single-stage .
