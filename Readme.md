@@ -1,120 +1,217 @@
-# Docker Crash Course
+# 🐳 Docker Containers – Crash Course (Hands‑On)
 
-A small, hands-on collection of examples and scripts to learn Docker basics: writing Dockerfiles (single- and multi-stage), building images, running containers, and using docker-compose. This repo includes a minimal Node example, example Dockerfiles, and installation helper scripts for Linux.
+This repository contains **practical, minimal examples** designed to teach Docker fundamentals through real usage: building images, running containers, writing Dockerfiles (single‑stage & multi‑stage), and orchestrating services with Docker Compose.
 
-## Table of contents
-- About
-- Repository contents
-- Prerequisites
-- Quick start
-- Build & run (Node app)
-- Multi-stage build example
-- Single-stage example (C/gcc)
-- Using docker-compose
-- Installation helper scripts
-- Troubleshooting
-- Recommended improvements
-- Contributing
-- License
+The goal is not theory overload, but **learning Docker by doing**.
 
-## About
-This repository is a simple Docker crash course intended to help you understand containers, images, Dockerfiles, and docker-compose through small, practical examples.
+---
 
-## Repository contents (high level)
-- Dockerfile — Node-based Dockerfile that uses node:24, sets /app, copies index.js and runs it.
-- Dockerfile-multistage — Multi-stage example that compiles a C program in a builder stage and copies the binary to a minimal runtime image.
-- Dockersfile-single — Single-stage Dockerfile example (note: filename is misspelled; see Recommended improvements).
-- docker-compose.yml — Minimal compose file to run services together.
-- index.js, app.js — Small Node server examples used by the Dockerfile(s).
-- package.json, package-lock.json — Node metadata and lockfile.
-- InstallDocker.sh, InstallingDockerUbuntu.sh — Shell scripts to assist installing Docker/Desktop on Linux.
-- alpine.sh — small shell example related to Alpine image usage.
-- Readme.md — current project README (this will be replaced).
+## 🚀 What you will learn
 
-## Prerequisites
-- Docker (Engine) and Docker CLI installed. For compose usage, either Docker Compose v1 or v2 (docker compose) is required.
-- Basic command-line knowledge.
-- For the Node example: Node is not required locally to build/run the Docker image, but it helps for local development.
+By working through this repository, you will learn how to:
 
-## Quick start
-1. Clone the repo:
-   git clone https://github.com/FMB237/Docker_Crash_Course.git
-   cd Docker_Crash_Course
+* Understand **Docker images vs containers**
+* Write **Dockerfiles** from scratch
+* Build and run containers using the Docker CLI
+* Use **multi‑stage builds** to create smaller, production‑ready images
+* Run multiple services together with **docker‑compose**
+* Troubleshoot common Docker & Linux issues
 
-2. Build the Node image:
-   docker build -t docker-crash-course .
+---
 
-3. Run the container (example maps container port 3000 to host 3000; adjust if your app uses a different port):
-   docker run --rm -p 3000:3000 docker-crash-course
+## 📦 Repository structure
 
-4. Confirm the app:
-   curl http://localhost:3000
+```
+Docker_Crash_Course/
+├── Dockerfile                # Node.js Dockerfile example
+├── Dockerfile-multistage     # Multi-stage build (C → Alpine)
+├── Dockerfile-single         # Single-stage build example
+├── docker-compose.yml        # Compose example for multi-service setup
+├── index.js                  # Minimal Node.js example
+├── app.js                    # Alternative Node app example
+├── package.json
+├── package-lock.json
+├── InstallDocker.sh          # Docker install helper (Linux)
+├── InstallingDockerUbuntu.sh # Docker install helper (Ubuntu)
+├── alpine.sh                 # Alpine-related shell example
+└── README.md
+```
 
-(If the Node app listens on another port, inspect index.js or app.js and map the correct port.)
+---
 
-## Build & run — Node Dockerfile
-The repository’s Dockerfile uses node:24 and runs index.js. Typical commands:
-- Build:
-  docker build -t docker-crash-course .
-- Run:
-  docker run --rm -p 3000:3000 docker-crash-course
+## 🧱 Prerequisites
 
-Notes & suggestions:
-- Consider adding EXPOSE 3000 to the Dockerfile (or whichever port the app uses).
-- Consider adding a .dockerignore to reduce image build contexts (node_modules, logs, .git, etc).
+* Docker Engine & Docker CLI installed
+* Basic command‑line knowledge
+* Linux, macOS, or Windows
 
-## Multi-stage build example
-Dockerfile-multistage demonstrates building a small C program in a builder stage and copying the compiled binary into a compact runtime image (alpine).
-- Build:
-  docker build -f Dockerfile-multistage -t multi-stage .
-- Run:
-  docker run --rm multi-stage
+> 💡 Node.js is **not required locally** to run the Node example — everything runs inside Docker.
 
-This pattern is useful to produce small final images by separating build dependencies from runtime images.
+---
 
-## Single-stage example
-The file named Dockersfile-single is a single-stage example (likely intended to be Dockerfile-single). Single-stage Dockerfiles contain one set of build instructions and produce an image that contains both build and runtime artifacts. If you prefer multi-stage builds to keep final images small, use the multi-stage example.
+## ⚡ Quick start
 
-## Using docker-compose
-If you want to run multiple services (frontend, backend, db) simultaneously, use docker-compose.yml:
-- Start:
-  docker-compose up -d
-  or, for Compose v2 plugin:
-  docker compose up -d
-- Stop:
-  docker-compose down
-- View logs:
-  docker-compose logs -f <service-name>
+Clone the repository:
 
-## Installation helper scripts
-- InstallDocker.sh — helper script for installing Docker Desktop / enabling KVM on Debian-based systems (Linux Mint/Ubuntu). Review the script before running. Example:
-  sudo bash InstallDocker.sh
+```bash
+git clone https://github.com/FMB237/Docker_Crash_Course.git
+cd Docker_Crash_Course
+```
 
-- InstallingDockerUbuntu.sh — a longer installation script tailored for Ubuntu environments. Review and run with root privileges:
-  sudo bash InstallingDockerUbuntu.sh
+Build the Docker image:
 
-Be careful: these scripts run privileged commands (modprobe, apt install, usermod). Inspect and adapt them for your distribution and security requirements.
+```bash
+docker build -t docker-crash-course .
+```
 
-## Troubleshooting
-- Docker daemon not running: start Docker Desktop or run systemctl start docker (or check the docs for your OS).
-- Permission errors when running Docker without sudo: add your user to the docker group: sudo usermod -aG docker $USER and log out/log in.
-- KVM module not available: confirm your CPU supports virtualization and that the kernel modules exist (kvm_intel or kvm_amd).
-- Port conflicts: if port 3000 (or another) is in use, map another host port (e.g. -p 8080:3000).
+Run the container:
 
-## Recommended improvements
-- Rename files for clarity: Dockersfile-single -> Dockerfile-single.
-- Update/replace the repository Readme.md with this README.
-- Add a .dockerignore to exclude node_modules, *.log, .git, etc.
-- Add EXPOSE <port> to Dockerfiles and ensure the app reads port from env var (PORT) for flexibility:
-  Example in Node: const port = process.env.PORT || 3000
-- Add healthcheck and non-root user in Dockerfile for better security.
-- Lint & format shell scripts; add safety checks (existence of required files, distribution detection).
-- Add a CONTRIBUTING.md and LICENSE file (e.g., MIT) if you want public contributions.
-- Add CI (GitHub Actions) that builds the images and runs basic smoke tests.
+```bash
+docker run --rm -p 3000:3000 docker-crash-course
+```
 
-## Contributing
-1. Fork the repo.
-2. Create a branch: git checkout -b fix/readme
-3. Make changes and open a PR describing your changes.
+Test the application:
 
-Please include clear commit messages and, when appropriate, tests or demonstration steps.
+```bash
+curl http://localhost:3000
+```
+
+---
+
+## 🧪 Dockerfile – Node.js example
+
+This Dockerfile:
+
+* Uses the official `node` image
+* Sets `/app` as the working directory
+* Copies application files
+* Installs dependencies
+* Runs the Node server
+
+Recommended improvements:
+
+* Add `.dockerignore`
+* Use environment variables for ports
+* Add `EXPOSE 3000`
+
+---
+
+## 🧩 Multi‑stage build example
+
+`Dockerfile-multistage` demonstrates a **real‑world Docker best practice**:
+
+* Build a C program in a builder stage
+* Copy only the compiled binary into a minimal Alpine runtime image
+
+Build and run:
+
+```bash
+docker build -f Dockerfile-multistage -t multi-stage-example .
+docker run --rm multi-stage-example
+```
+
+Benefits:
+
+* Smaller image size
+* Better security
+* Faster deployments
+
+---
+
+## 🧱 Single‑stage build example
+
+`Dockerfile-single` shows a classic single‑stage Dockerfile where build and runtime exist in the same image.
+
+This approach is simpler but usually results in **larger images**. For production systems, multi‑stage builds are preferred.
+
+---
+
+## 🔗 Using Docker Compose
+
+`docker-compose.yml` allows running multiple services together.
+
+Start services:
+
+```bash
+docker compose up -d
+```
+
+Stop services:
+
+```bash
+docker compose down
+```
+
+View logs:
+
+```bash
+docker compose logs -f
+```
+
+Docker Compose is commonly used for:
+
+* Backend + database setups
+* Microservices
+* Local development environments
+
+---
+
+## 🐧 Docker installation scripts
+
+The repository includes helper scripts for Linux users:
+
+* `InstallDocker.sh`
+* `InstallingDockerUbuntu.sh`
+
+⚠️ Always **review scripts before running**. They execute privileged commands such as package installation and user permission changes.
+
+---
+
+## 🛠️ Troubleshooting
+
+Common issues and fixes:
+
+* **Docker daemon not running** → `systemctl start docker`
+* **Permission denied** → add user to docker group:
+
+  ```bash
+  sudo usermod -aG docker $USER
+  ```
+* **Port already in use** → change port mapping:
+
+  ```bash
+  -p 8080:3000
+  ```
+
+---
+
+## 🌱 Suggested improvements
+
+* Add `.dockerignore`
+* Add health checks
+* Run containers as non‑root user
+* Add CI pipeline (GitHub Actions)
+* Dockerize a real backend app (Flask, API, SaaS)
+
+---
+
+## 🎯 Learning outcome
+
+After completing this crash course, you are able to:
+
+* Confidently use Docker for local development
+* Read and write Dockerfiles
+* Use Docker Compose for multi‑service setups
+* Prepare applications for deployment
+
+This repository serves as a **foundation for DevOps, Cloud, and production‑ready development**.
+
+---
+
+## 📄 License
+
+MIT License
+
+---
+
+🔥 *Built as part of a Docker Crash Course – January 2026*
